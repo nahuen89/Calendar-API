@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Calendar API Quickstart</title>
+    <meta charset='utf-8' />
+  </head>
+  <body>
+    <p>Probando la API calendar </p>
+
+    <!--pedir autorización-->
+    <button id="authorize-button" style="display: none;">Autorizar</button>
+    <button id="signout-button" style="display: none;">Salir</button>
+
+    <pre id="content"></pre>
+
+    <div id="divPruebas" style="display: none;">
+        <p>Probando cosas:</p>
+        <button id="crear-button" >Crear</button>
+    </div>
+
+    <script type="text/javascript">
+
+      // Primero guardamos la API KEY que obtuvimos al habilitar las credenciales 
+      var CLIENT_ID = '556634769368-pl8s0021rs85uq1g5knkurcsvnltuust.apps.googleusercontent.com';
+      // lugo llamamos a un documento de google que contiene referencias para hacer una petición REST ya establecida por google.
+      // y le indicamos que vamos a trabajar con calendar = /calendar/v3/rest
+      // DOC. AQUI - https://developers.google.com/discovery/v1/reference/apis
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+      // Ámbitos de autorización requeridos por la API en este caso Calendar indicando el método solo lectura; 
+      var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+      // var para guardar el ID del calendario distinto generado en tu propio calendario
+     
+     
+      /**
+       *  Guardamos en una variable los elementos a mostrar en el HTML 
+       */
+      var authorizeButton = document.getElementById('authorize-button');
+      var signoutButton = document.getElementById('signout-button');
+      var divPruebas = document.getElementById('divPruebas');
+
+      /**
+       *  cargamos datos del cliente, y cargamos la autorisacion de la API. usando métodos de el archivo JS de google.
+       * La variable "gapi" esta definida en este archivo y con ella realizaremos el uso de todos los métodos.
+       *  DOC. AQUI - https://developers.google.com/api-client-library/javascript/start/start-js   
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient); // primero indicamos el método de autentificación y después construimos el init
+      }
+
+      /**
+       *  El init es como un loguin entre la api y el cliente
+       *  relaciona los permisos para usar la api calendar y los datos de 
+       *  dicha api con respecto al cliente logueado.
+       */
+      function initClient() {
+        gapi.client.init({
+          discoveryDocs: DISCOVERY_DOCS,
+          clientId: CLIENT_ID,
+          scope: SCOPES
+        }).then(function () {
+          // Esperando que el estado del loguin cambie.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Revisa el estado de seccion 
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        });
+      }
+
+      /**
+       *  Se llama cuando se cambia el estado de inicio de sesión, 
+       *  para actualizar la interfaz de usuario apropiadamente. 
+       *  Después de un inicio de sesión, se llama a la API.
+       */
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+          divPruebas.style.display='block';
+          listUpcomingEvents();
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      /**
+       *  Loguear usuario
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      /**
+       * deslogar 
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      /**
+       * Añada un elemento pre al cuerpo que contiene el
+       *  mensaje dado como su nodo de texto.
+       * Se usa para mostrar los resultados de la llamada a la API.
+       *
+       * @param {string} Mensaje Texto a colocar en el elemento <pre>.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('content');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
+
+   function listUpcomingEvents() {
+
+        //EJEMPLO para agregar un evento 
+        gapi.client.calendar.events.insert({ // utilizamos el metodo para obtener la lista de eventos
+          'calendarId': 'q03d1123kr30b14qlekmvcf0ho@group.calendar.google.com', //ID de tu calendario o deja primary que es el normal por defecto.
+          'maxAttendees': 5,
+          'sendNotifications':true,
+          'supportsAttachments':true,
+          'id': '45458eee9d3433fd89', // El ID lo creamos nosotros asique es bueno recordarlo para despues poder borrar o actualizar el evento
+          'summary':'titulo1', // nombre del evento
+          "description": "este evento es la asd",
+          "end": {
+            "dateTime": (new Date()).toISOString(),
+            "timeZone": "America/Buenos_Aires"
+          },
+          "start": {
+            "dateTime": (new Date()).toISOString(),
+            "timeZone": "America/Buenos_Aires"
+          }
+           
+        }).then(function(response) {
+          var events = response.result.items; // traemos una lista con los 10 eventos
+          appendPre('se creo el evento:');
+          if (events.length > 0) {
+              appendPre('algo paso');
+        }else {
+            appendPre('No se pudo crear el evento.'); // si no encontramos eventos mostramos un mensaje
+          }
+        });
+
+
+        gapi.client.calendar.events.list({ // utilizamos el metodo para obtener la lista de eventos
+          'calendarId': 'q03d1123kr30b14qlekmvcf0ho@group.calendar.google.com', //ID de tu calendario o deja primary que es el normal por defecto.
+          'timeMin': (new Date()).toISOString(), // AQUI Todos los parametro https://developers.google.com/google-apps/calendar/v3/reference/events/list
+          'showDeleted': false,
+          'id':true,
+          'singleEvents': true,
+          'maxResults': 10,
+          'orderBy': 'startTime'
+        }).then(function(response) {
+          var events = response.result.items; // traemos una lista con los 10 eventos
+          appendPre('Proximos eventos:');
+
+          if (events.length > 0) {
+            for (i = 0; i < events.length; i++) { // recorremos los evento y los vamos mostrando
+              var event = events[i];
+              var when = event.start.dateTime;
+              if (!when) {
+                when = event.start.date;
+              }
+              appendPre(event.summary + ' (' + when + ')')
+            }
+          } else {
+            appendPre('No se encontraron eventos proximos.'); // si no encontramos eventos mostramos un mensaje
+          }
+        });
+      }
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+     /**
+     * AQUI llamamos al archivo js de google que contiene o crea un objeto 
+     * que se amolda a la api que estemos intentando utilizar.
+     */
+    </script>
+  </body>
+</html>

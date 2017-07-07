@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
   <head>
     <title>Google Calendar API Quickstart</title>
@@ -12,16 +11,11 @@
     <button id="signout-button" style="display: none;">Salir</button>
 
     <pre id="content"></pre>
-
-    <div id="divPruebas" style="display: none;">
-        <p>Probando cosas:</p>
-        <button id="crear-button" >Crear</button>
-    </div>
-
+    
     <script type="text/javascript">
 
       // Primero guardamos la API KEY que obtuvimos al habilitar las credenciales 
-      var CLIENT_ID = 'Tu API KEY';
+      var CLIENT_ID = 'TU KEY API';
       // lugo llamamos a un documento de google que contiene referencias para hacer una petición REST ya establecida por google.
       // y le indicamos que vamos a trabajar con calendar = /calendar/v3/rest
       // DOC. AQUI - https://developers.google.com/discovery/v1/reference/apis
@@ -36,8 +30,7 @@
        */
       var authorizeButton = document.getElementById('authorize-button');
       var signoutButton = document.getElementById('signout-button');
-      var divPruebas = document.getElementById('divPruebas');
-
+      
       /**
        *  cargamos datos del cliente, y cargamos la autorisacion de la API. usando métodos de el archivo JS de google.
        * La variable "gapi" esta definida en este archivo y con ella realizaremos el uso de todos los métodos.
@@ -77,7 +70,6 @@
         if (isSignedIn) {
           authorizeButton.style.display = 'none';
           signoutButton.style.display = 'block';
-          divPruebas.style.display='block';
           listUpcomingEvents();
         } else {
           authorizeButton.style.display = 'block';
@@ -112,42 +104,50 @@
         pre.appendChild(textContent);
       }
 
-   function listUpcomingEvents() {
+      /**
+       * Print the summary and start datetime/date of the next ten events in
+       * the authorized user's calendar. If no events are found an
+       * appropriate message is printed.
+       * primary  es el calendario que viene por defecto pero podemos indicar otros.
+       * obteniendo el ID de los diferentes calendarios echos por el cliente 
+       * podemos labuerar como si fuera otra capa que no moleste al cliente.
+       */
+      function listUpcomingEvents() {
 
-        //EJEMPLO para agregar un evento 
-        gapi.client.calendar.events.insert({ // utilizamos el metodo para obtener la lista de eventos
-          'calendarId': 'primary', //ID de tu calendario o deja primary que es el normal por defecto.
-          'maxAttendees': 5,
-          'sendNotifications':true,
-          'supportsAttachments':true,
-          'id': '45458eee9d3433fd89', // El ID lo creamos nosotros asique es bueno recordarlo para despues poder borrar o actualizar el evento
-          'summary':'titulo1', // nombre del evento
-          "description": "este evento es la asd",
-          "end": {
-            "dateTime": (new Date()).toISOString(),
-            "timeZone": "America/Buenos_Aires"
-          },
-          "start": {
-            "dateTime": (new Date()).toISOString(),
-            "timeZone": "America/Buenos_Aires"
-          }
-           
-        }).then(function(response) {
-          var events = response.result.items; // traemos una lista con los 10 eventos
-          appendPre('se creo el evento:');
-          if (events.length > 0) {
-              appendPre('algo paso');
-        }else {
-            appendPre('No se pudo crear el evento.'); // si no encontramos eventos mostramos un mensaje
-          }
-        });
+          //EJEMPLO para agregar un evento 
+            gapi.client.calendar.events.insert({ // utilizamos el metodo para obtener la lista de eventos
+              'calendarId': 'primary', //ID de tu calendario o deja primary que es el normal por defecto.
+              'maxAttendees': 5,
+              'sendNotifications':true,
+              'supportsAttachments':true,
+              'id': '45458eee9d3433fd89', // El ID lo creamos nosotros asique es bueno recordarlo para despues poder borrar o actualizar el evento
+              'summary':'titulo1', // nombre del evento
+              "description": "este evento es la asd",
+              "end": {
+                "dateTime": (new Date()).toISOString(),
+                "timeZone": "America/Buenos_Aires"
+              },
+              "start": {
+                "dateTime": (new Date()).toISOString(),
+                "timeZone": "America/Buenos_Aires"
+              }
+              
+            }).then(function(response) {
+              var events = response.result.items; // traemos una lista con los 10 eventos
+              appendPre('se creo el evento:');
+              if (events.length > 0) {
+                  appendPre('algo paso');
+            }else {
+                appendPre('No se pudo crear el evento.'); // si no encontramos eventos mostramos un mensaje
+              }
+            });
 
 
+         // FUNCION para llamar un listado de eventos
         gapi.client.calendar.events.list({ // utilizamos el metodo para obtener la lista de eventos
           'calendarId': 'primary', //ID de tu calendario o deja primary que es el normal por defecto.
           'timeMin': (new Date()).toISOString(), // AQUI Todos los parametro https://developers.google.com/google-apps/calendar/v3/reference/events/list
           'showDeleted': false,
-          'id':true,
           'singleEvents': true,
           'maxResults': 10,
           'orderBy': 'startTime'

@@ -21,7 +21,7 @@
     <script type="text/javascript">
 
       // Primero guardamos la API KEY que obtuvimos al habilitar las credenciales 
-      var CLIENT_ID = '556634769368-pl8s0021rs85uq1g5knkurcsvnltuust.apps.googleusercontent.com';
+      var CLIENT_ID = 'Tu API KEY';
       // lugo llamamos a un documento de google que contiene referencias para hacer una petición REST ya establecida por google.
       // y le indicamos que vamos a trabajar con calendar = /calendar/v3/rest
       // DOC. AQUI - https://developers.google.com/discovery/v1/reference/apis
@@ -116,7 +116,7 @@
 
         //EJEMPLO para agregar un evento 
         gapi.client.calendar.events.insert({ // utilizamos el metodo para obtener la lista de eventos
-          'calendarId': 'q03d1123kr30b14qlekmvcf0ho@group.calendar.google.com', //ID de tu calendario o deja primary que es el normal por defecto.
+          'calendarId': 'primary', //ID de tu calendario o deja primary que es el normal por defecto.
           'maxAttendees': 5,
           'sendNotifications':true,
           'supportsAttachments':true,
@@ -144,7 +144,7 @@
 
 
         gapi.client.calendar.events.list({ // utilizamos el metodo para obtener la lista de eventos
-          'calendarId': 'q03d1123kr30b14qlekmvcf0ho@group.calendar.google.com', //ID de tu calendario o deja primary que es el normal por defecto.
+          'calendarId': 'primary', //ID de tu calendario o deja primary que es el normal por defecto.
           'timeMin': (new Date()).toISOString(), // AQUI Todos los parametro https://developers.google.com/google-apps/calendar/v3/reference/events/list
           'showDeleted': false,
           'id':true,
